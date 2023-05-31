@@ -32,5 +32,7 @@ interface IModuleInterest {
 		returns (uint256);
 
 	function getDebtOf(address _vault) external view returns (uint256);
+
+	function syncWithProtocol(uint256 _amount) external;
 }
 

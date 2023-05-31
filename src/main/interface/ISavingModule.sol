@@ -81,6 +81,13 @@ interface ISavingModule {
 	function switchAutolock(uint256 _lockId, bool _active) external;
 
 	/**
+	@notice increaseLockDaysTo Set days to your lock. Can only be used to increase the lock time
+	@param _lockId Unique Id of the active lock
+	@param _lockDays The new lock days (cannot be higher than the cap) 
+	 */
+	function increaseLockDaysTo(uint256 _lockId, uint128 _lockDays) external;
+
+	/**
 	@notice getUserLockIds Get all lockIds of an user
 	@param _user Address of the User
 	 */

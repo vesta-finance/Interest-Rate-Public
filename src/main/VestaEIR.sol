@@ -114,13 +114,23 @@ contract VestaEIR is CropJoinAdapter, IModuleInterest {
 		onlyInterestManager
 		returns (uint256 addedInterest_)
 	{
-		if (balances[_vault] == 0) revert NoDebtFound();
+		uint256 userBalance = balances[_vault];
+		if (userBalance == 0) revert NoDebtFound();
 
 		addedInterest_ = _distributeInterestRate(_vault);
+		userBalance += addedInterest_;
+
+		if (totalDebt <= userBalance) {
+			totalDebt = 0;
+		} else {
+			totalDebt -= userBalance;
+		}
 
 		balances[_vault] = 0;
 
 		_exitShare(_vault, shareOf(_vault));
+
+		if (totalWeight == 0) totalDebt = 0;
 
 		return addedInterest_;
 	}
@@ -261,6 +271,14 @@ contract VestaEIR is CropJoinAdapter, IModuleInterest {
 		returns (uint256)
 	{
 		return balances[_vault];
+	}
+
+	function syncWithProtocol(uint256 _amount)
+		external
+		override
+		onlyInterestManager
+	{
+		totalDebt = _amount + interestMinted;
 	}
 }
 

@@ -7,6 +7,7 @@ import { IModuleInterest } from "./interface/IModuleInterest.sol";
 import { IPriceFeed } from "./interface/IPriceFeed.sol";
 import { IVSTOperator } from "./interface/IVSTOperator.sol";
 import { ISavingModule } from "./interface/ISavingModule.sol";
+import { ITroveManager } from "./interface/ITroveManager.sol";
 
 import { OwnableUpgradeable } from "openzeppelin-contracts-upgradeable/access/OwnableUpgradeable.sol";
 
@@ -148,6 +149,21 @@ contract VestaInterestManager is IInterestManager, OwnableUpgradeable {
 		if (totalInterestAdded > 0) {
 			vstOperator.mint(safetyVault, totalInterestAdded);
 			ISavingModule(safetyVault).depositVST(totalInterestAdded);
+		}
+	}
+
+	function syncWithProtocol(address[] calldata _assets)
+		external
+		onlyOwner
+	{
+		updateModules();
+
+		address asset;
+		for (uint256 i = 0; i < _assets.length; ++i) {
+			asset = _assets[i];
+			IModuleInterest(interestByTokens[asset]).syncWithProtocol(
+				ITroveManager(troveManager).getEntireSystemDebt(asset)
+			);
 		}
 	}
 
